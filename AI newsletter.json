@@ -1,0 +1,238 @@
+{
+  "name": "AI newsletter",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "current-date",
+              "name": "currentDate",
+              "type": "string",
+              "value": "={{ $now.format('yyyy-MM-dd') }}"
+            },
+            {
+              "id": "yesterday-date",
+              "name": "lastweekDate",
+              "type": "string",
+              "value": "={{ $now.minus({days: 7}).format('yyyy-MM-dd') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1e96bce9-4e06-470a-90bb-592177bc121a",
+      "name": "Set Dates1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -300,
+        320
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Proposed Category structure (example)\ncategory\tContents\n1. Introduction / Context\tWhy is this issue relevant? What problem or issue does it focus on?\n2. Trend/News of the Week\tGPT-5, Horizon Alpha, Notebook LM etc. – compact, but with context\n3. Tool of the Week + Mini Guide\tE.g. Prompt + Result + Application for SMEs\n4. Strategy / Classification\tWhat does this mean for companies? Recommendations for action\n5. Tool Radar\tAdditional tools (short + link + application idea)\n6. CTA & Exchange Impulse\te.g. \"Test it yourself\" or \"What should we write about?\"\n7. Preview\tTeaser for next issue or external recommendation (optional)\n\nCreate a newsletter (1,000–1,200 words)\nThe newsletter should:\nhave a clear structure with 7 sections\n",
+        "options": {
+          "systemMessage": "You are an AI writing assistant tasked with creating a weekly newsletter about artificial intelligence (AI). The goal is to inform, engage, and educate readers ranging from tech-savvy professionals to curious enthusiasts. Follow the structure below and ensure the tone is professional yet accessible."
+        }
+      },
+      "id": "9f572c4c-ccda-4330-b92e-376b37fa2ab2",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -80,
+        320
+      ],
+      "typeVersion": 1.9
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "id": "6863a495-95e2-44b9-ae25-36ddfa832056",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -500,
+        320
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "model": "deepseek-r1:1.5b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        520
+      ],
+      "id": "65f8708d-8dbc-40bb-b04c-f28c38e1985a",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "xihbfz2TzkoYe4kR",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        280,
+        320
+      ],
+      "id": "2d1a7e01-b6dd-4626-a3d0-0d7a10305cfa",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "1JkpPw9xGXDzV5KcCP1FCiXbJB2KKCRbO3YqtLt_i7RQ",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        520,
+        200
+      ],
+      "id": "1a8896fa-5158-42d7-8b75-4a7f32270a5f",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "kP9AZBm8QZFVkr9v",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "tanvirf07@gmail.com",
+        "subject": "AI Newsletter ",
+        "emailType": "text",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        520,
+        420
+      ],
+      "id": "b2b50a08-662c-44d6-babc-e5d5b5ada775",
+      "name": "Send a message",
+      "webhookId": "6b0cdc4b-a890-4952-900c-52bbf8972ad9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "m5SFwgP9tpteYySr",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Dates1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Dates1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        []
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "007c3d66-11c6-44ec-aeb5-2ba76273e5e2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "da2712b2952dd807269f0dffac9d0c3526d0068ebd27ee1842e0352cfbbfe4bc"
+  },
+  "id": "xUZP0L8RyFckgHV8",
+  "tags": []
+}
