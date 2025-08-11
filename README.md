@@ -27,7 +27,7 @@ This workflow is tailored for SMEs, startup founders, and non-technical professi
 1. **Clone the Repository**  
    ```bash
    git clone https://github.com/muhammadfarhantanvir/AI-Newsletter-n8n-automation.git
-   cd ai-edge-newsletter
+   cd AI-Newsletter-n8n-automation
    ```
 
 2. **Install n8n**  
